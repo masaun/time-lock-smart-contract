@@ -24,8 +24,9 @@ contract TimeLock {
     /***
      * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
      **/
-    function deposit() public returns (bool) {
-
+    function deposit(IERC20 _erc20, uint amount) public returns (bool) {
+        IERC20 erc20 = _erc20;
+        erc20.transferFrom(msg.sender, address(this), amount);
     }
 
     /***
