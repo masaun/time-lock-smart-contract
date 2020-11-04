@@ -12,4 +12,19 @@ contract TimeLock {
 
     constructor() public {}
 
+    /***
+     * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
+     **/
+    function deposit() public returns (bool) {
+
+    }
+
+    /***
+     * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
+     **/
+    function redeem() public returns (bool) {  /// [Note]: Equal to "withdraw"
+
+    } 
+
+    
 }
