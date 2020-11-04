@@ -13,6 +13,8 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 contract TimeLock {
     using SafeMath for uint;
 
+    uint lockedPeriod = 7 days;  /// [Note]: Default locked period is 7 days.
+
     RedemptionToken public redemptionToken;
 
     constructor(RedemptionToken _redemptionToken) public {
