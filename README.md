@@ -48,7 +48,7 @@ $ npm run test:local
 ***
 
 ## 【References】
-- Money Dance
+- Money Dance  
 https://www.moneydance.io/
 https://moneydance.devpost.com/
 https://moneydance.devpost.com/details/resources?preview_token=dMiXFgKLi2UrXFT5QLBQy5STNJs4mFnRfJwrZl%2Bhlgc%3D
@@ -56,5 +56,6 @@ https://moneydance.devpost.com/details/resources?preview_token=dMiXFgKLi2UrXFT5Q
 <br>
 
 - Poly Games
-  - Time Lock Smart Contract：https://docs.polyient.games/developer-resources/moneydance-hackathon
+  - Concept of the "Time Lock Smart Contract"：  
+    https://docs.polyient.games/developer-resources/moneydance-hackathon
 
