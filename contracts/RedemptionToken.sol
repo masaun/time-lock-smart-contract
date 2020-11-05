@@ -16,5 +16,10 @@ contract RedemptionToken is ERC20 {
         address initialTokenHolder = msg.sender;  /// [Note]: msg.sender is the deployer address
         _mint(initialTokenHolder, initialSupply);    	
     }
+
+    function burn(address walletAddress, uint256 amount) public returns (bool) {
+    	_burn(walletAddress, amount);
+    }
+    
     
 }

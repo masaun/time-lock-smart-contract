@@ -16,8 +16,8 @@ contract TimeLock {
     uint currentTimelockId;  /// Time lock ID
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
-    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Timestamp of the period is saved. 
-                                                         /// Key: timelock ID -> user address               
+    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
+                                                         /// [Key]: timelock ID -> user address               
 
     RedemptionToken public redemptionToken;
 
@@ -45,25 +45,33 @@ contract TimeLock {
     }
 
     /***
-     * @notice - A redemption token will be distributed into the specified address
-     **/    
-    function _distributeRedemptionToken(address to, uint amount) internal returns (bool) {
-        redemptionToken.transfer(to, amount);
-    }
-
-    /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
     function redeem(uint timelockId, IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
 
-        /// User deposit an amount of Redemption token
-        redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+        /// User deposit an amount of the redemption tokens
+        //redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
-        /// User recieve a redemption token
+        /// Burn the redemption tokens
+        redemptionToken.burn(msg.sender, amount);
+
+        /// User recieve redemption tokens
         _distributeERC20Token(_erc20, msg.sender, amount);        
     } 
+
+
+    ///------------------------------------------------------------
+    /// Internal functions
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - A redemption token will be distributed into the specified address
+     **/    
+    function _distributeRedemptionToken(address to, uint amount) internal returns (bool) {
+        redemptionToken.transfer(to, amount);
+    }
 
     /***
      * @notice - ERC20 token (that an user was deposited) will be distributed into the user who was deposited
@@ -72,6 +80,11 @@ contract TimeLock {
         IERC20 erc20 = _erc20;
         erc20.transfer(to, amount);
     }
+
+
+    ///------------------------------------------------------------
+    /// Getter functions
+    ///------------------------------------------------------------
 
 
     ///------------------------------------------------------------
