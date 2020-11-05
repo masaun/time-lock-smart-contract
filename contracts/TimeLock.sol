@@ -45,13 +45,6 @@ contract TimeLock {
     }
 
     /***
-     * @notice - A redemption token will be distributed into the specified address
-     **/    
-    function _distributeRedemptionToken(address to, uint amount) internal returns (bool) {
-        redemptionToken.transfer(to, amount);
-    }
-
-    /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
     function redeem(uint timelockId, IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
@@ -65,6 +58,18 @@ contract TimeLock {
         _distributeERC20Token(_erc20, msg.sender, amount);        
     } 
 
+
+    ///------------------------------------------------------------
+    /// Internal functions
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - A redemption token will be distributed into the specified address
+     **/    
+    function _distributeRedemptionToken(address to, uint amount) internal returns (bool) {
+        redemptionToken.transfer(to, amount);
+    }
+
     /***
      * @notice - ERC20 token (that an user was deposited) will be distributed into the user who was deposited
      **/    
@@ -72,6 +77,11 @@ contract TimeLock {
         IERC20 erc20 = _erc20;
         erc20.transfer(to, amount);
     }
+
+
+    ///------------------------------------------------------------
+    /// Getter functions
+    ///------------------------------------------------------------
 
 
     ///------------------------------------------------------------
