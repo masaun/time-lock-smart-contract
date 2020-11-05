@@ -16,8 +16,8 @@ contract TimeLock {
     uint currentTimelockId;  /// Time lock ID
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
-    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Timestamp of the period is saved. 
-                                                         /// Key: timelock ID -> user address               
+    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
+                                                         /// [Key]: timelock ID -> user address               
 
     RedemptionToken public redemptionToken;
 
@@ -51,10 +51,13 @@ contract TimeLock {
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
 
-        /// User deposit an amount of Redemption token
-        redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+        /// User deposit an amount of the redemption tokens
+        //redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
-        /// User recieve a redemption token
+        /// Burn the redemption tokens
+        redemptionToken.burn(msg.sender, amount);
+
+        /// User recieve redemption tokens
         _distributeERC20Token(_erc20, msg.sender, amount);        
     } 
 
