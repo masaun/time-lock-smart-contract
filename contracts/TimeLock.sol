@@ -28,8 +28,12 @@ contract TimeLock {
     IERC20 link;                                         /// Chainlink coin
     AggregatorV3Interface internal linkPriceFeed;        /// chainlink aggregator
 
-    constructor(RedemptionToken _redemptionToken) public {
+    constructor(RedemptionToken _redemptionToken, address _dai, address _link, address _linkPriceFeed) public {
         redemptionToken = _redemptionToken;
+
+        dai = IERC20(_dai);                                     /// DAI
+        link = IERC20(_link);                                   /// LINK
+        linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
     }
 
     /***
