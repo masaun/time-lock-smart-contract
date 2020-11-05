@@ -20,9 +20,9 @@ contract TimeLock {
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
-                                                         /// [Key]: timelock ID -> user address               
+                                                         /// [Key]: timelock ID -> user address
 
-    RedemptionToken public redemptionToken;
+    RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
 
     IERC20 dai;                                          /// DAI stable coin
     IERC20 link;                                         /// Chainlink coin
@@ -47,7 +47,7 @@ contract TimeLock {
         /// Start to the locked period
         uint newTimelockId = getNextTimelockId();
         currentTimelockId++;
-        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);
+        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);  /// [Key]: timelock ID -> user address
 
         /// User recieve a redemption token
         _distributeRedemptionToken(msg.sender, amount);
@@ -84,6 +84,7 @@ contract TimeLock {
      * @notice - etch eth price from chainlink
      **/
     function fetchlinkPrice() public view returns (int256) {
+        /// Retrieve a price feed data (of LINK)
         (
             uint80 roundID, 
             int price,
@@ -91,7 +92,7 @@ contract TimeLock {
             uint timeStamp,
             uint80 answeredInRound
         ) = linkPriceFeed.latestRoundData();
-        // If the round is not complete yet, timestamp is 0
+        /// If the round is not complete yet, timestamp is 0
         require(timeStamp > 0, "Round not complete");
         return price;
     }
