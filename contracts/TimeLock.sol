@@ -13,7 +13,11 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 contract TimeLock {
     using SafeMath for uint;
 
-    uint lockedPeriod = 7 days;  /// [Note]: Default locked period is 7 days.
+    uint currentTimelockId;  /// Time lock ID
+
+    uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
+    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Timestamp of the period is saved. 
+                                                         /// Key: timelock ID -> user address               
 
     RedemptionToken public redemptionToken;
 
@@ -24,13 +28,20 @@ contract TimeLock {
     /***
      * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
      **/
-    function deposit(IERC20 _erc20, uint amount) public returns (bool) {
+    function deposit(IERC20 _erc20, uint amount) public returns (uint _newTimelockId) {
         /// User deposit an amount of ERC20 token
         IERC20 erc20 = _erc20;
         erc20.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
+        /// Start to the locked period
+        uint newTimelockId = getNextTimelockId();
+        currentTimelockId++;
+        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);
+
         /// User recieve a redemption token
         _distributeRedemptionToken(msg.sender, amount);
+
+        return newTimelockId;
     }
 
     /***
@@ -43,7 +54,10 @@ contract TimeLock {
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
-    function redeem(IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
+    function redeem(uint timelockId, IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
+        /// Check whether the locked period has been passed or not
+        require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
+
         /// User deposit an amount of Redemption token
         redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
@@ -58,5 +72,14 @@ contract TimeLock {
         IERC20 erc20 = _erc20;
         erc20.transfer(to, amount);
     }
-    
+
+
+    ///------------------------------------------------------------
+    /// Private functions
+    ///------------------------------------------------------------
+
+    function getNextTimelockId() private view returns (uint nextTimelockId) {
+        return currentTimelockId.add(1);
+    }
+
 }
