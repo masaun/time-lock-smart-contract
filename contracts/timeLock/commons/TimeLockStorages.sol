@@ -9,4 +9,6 @@ import { TimeLockObjects } from "./TimeLockObjects.sol";
  **/
 contract TimeLockStorages is TimeLockObjects {
 
+    mapping (uint => mapping(address => Deposit)) deposits;  /// [Key]: timelock ID -> user address
+
 }

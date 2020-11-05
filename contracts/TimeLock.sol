@@ -21,7 +21,7 @@ contract TimeLock is TimeLockStorages {
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
-                                                         /// [Key]: timelock ID -> user address
+                                                         /// [Key]: timelock ID -> user address (-> timestamp)
 
     RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
 
