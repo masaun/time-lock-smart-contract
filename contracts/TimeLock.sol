@@ -3,6 +3,8 @@ pragma experimental ABIEncoderV2;
 
 import "./RedemptionToken.sol";
 
+import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
+
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
@@ -14,12 +16,17 @@ contract TimeLock {
     using SafeMath for uint;
 
     uint currentTimelockId;  /// Time lock ID
+    uint linkPrice;          /// last price of ETH
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
                                                          /// [Key]: timelock ID -> user address               
 
     RedemptionToken public redemptionToken;
+
+    IERC20 dai;                                          /// DAI stable coin
+    IERC20 link;                                         /// Chainlink coin
+    AggregatorV3Interface internal linkPriceFeed;        /// chainlink aggregator
 
     constructor(RedemptionToken _redemptionToken) public {
         redemptionToken = _redemptionToken;
