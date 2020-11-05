@@ -61,6 +61,30 @@ contract TimeLock {
         _distributeERC20Token(_erc20, msg.sender, amount);        
     } 
 
+    /***
+     * @notice - Update to the latest price
+     **/
+    function updatePrice() public {
+        /// cast to uint256 * add 10 decimals of precision
+        linkPrice = uint256(fetchlinkPrice()).mul(10**10);
+    }
+
+    /***
+     * @notice - etch eth price from chainlink
+     **/
+    function fetchlinkPrice() public view returns (int256) {
+        (
+            uint80 roundID, 
+            int price,
+            uint startedAt,
+            uint timeStamp,
+            uint80 answeredInRound
+        ) = linkPriceFeed.latestRoundData();
+        // If the round is not complete yet, timestamp is 0
+        require(timeStamp > 0, "Round not complete");
+        return price;
+    }
+
 
     ///------------------------------------------------------------
     /// Internal functions
