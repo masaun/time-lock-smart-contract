@@ -25,15 +25,26 @@ contract TimeLock {
      * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
      **/
     function deposit(IERC20 _erc20, uint amount) public returns (bool) {
+        /// User deposit an amount of ERC20 token
         IERC20 erc20 = _erc20;
-        erc20.transferFrom(msg.sender, address(this), amount);
+        erc20.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+
+        /// User recieve a redemption token
+        _distributeRedemptionToken(msg.sender, amount);
+    }
+
+    /***
+     * @notice - A redemption token is distributed into the specified address
+     **/    
+    function _distributeRedemptionToken(address to, uint amount) internal returns (bool) {
+        redemptionToken.transfer(to, amount);
     }
 
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
     function redeem() public returns (bool) {  /// [Note]: Equal to "withdraw"
-
+        
     } 
 
     
