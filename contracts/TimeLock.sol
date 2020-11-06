@@ -79,7 +79,7 @@ contract TimeLock is TimeLockStorages {
         /// Burn the redemption tokens
         redemptionToken.burn(msg.sender, _depositedAmount);
 
-        /// User recieve redemption tokens
+        /// User recieve redemption tokens (Same amount with user deposited will be distributed)
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
 
