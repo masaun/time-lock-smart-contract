@@ -15,7 +15,6 @@ contract TimeLock is TimeLockStorages {
     using SafeMath for uint;
 
     uint currentTimelockId;  /// Time lock ID
-    uint linkPrice;          /// last price of ETH
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
