@@ -50,17 +50,17 @@ contract("TimeLock contract", function (accounts) {
         assert.equal(currentLockedPeriod, sevenDays, 'Current locked period should be 7 days'); /// [Result]: Success
     });
 
-	it('Current locked period should be changed (from 7 days) to 5 second', async () => {
+	it('Current locked period should be changed (from 7 days) to 1 second', async () => {
         let currentLockedPeriodBefore = await timeLock.methods.lockedPeriod().call();
         console.log("\n=== currentLockedPeriod (Before) ===", currentLockedPeriodBefore);
 
-        const fiveSecond = 5;  /// 5 second
+        const second = 1;  /// 1 second
         let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(fiveSecond).send({ from: accounts[0] });
 
         let currentLockedPeriodAfter = await timeLock.methods.lockedPeriod().call();
         console.log("=== currentLockedPeriod (After) ===", currentLockedPeriodAfter);
 
-        assert.equal(currentLockedPeriodAfter, fiveSecond, 'Current locked period should be changed (from 7 days) to 5 second'); /// [Result]: Success
+        assert.equal(currentLockedPeriodAfter, second, 'Current locked period should be changed (from 7 days) to 5 second'); /// [Result]: Success
     });
 
     it('Initial DAI balance should be 100M', async () => {  /// [Note]: DAI is mock ERC20 token
