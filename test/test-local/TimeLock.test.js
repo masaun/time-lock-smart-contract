@@ -27,7 +27,21 @@ contract("TimeLock contract", function (accounts) {
         console.log("=== currentLockedPeriod ===", currentLockedPeriod);
         console.log("=== sevenDays (7 days) ===", sevenDays);
 
-        assert.equal(currentLockedPeriod, sevenDays, 'Current locked period should be 7 days');
+        assert.equal(currentLockedPeriod, sevenDays, 'Current locked period should be 7 days'); /// [Result]: Success
     });
+
+	it('Current locked period should be changed (from 7 days) to 5 second', async () => {
+        let currentLockedPeriodBefore = await timeLock.methods.lockedPeriod().call();
+        console.log("=== currentLockedPeriod (Before) ===", currentLockedPeriodBefore);
+
+        const fiveSecond = 5;  /// 5 second
+        let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(fiveSecond).send({ from: accounts[0] });
+
+        let currentLockedPeriodAfter = await timeLock.methods.lockedPeriod().call();
+        console.log("=== currentLockedPeriod (After) ===", currentLockedPeriodAfter);
+
+        assert.equal(currentLockedPeriodAfter, fiveSecond, 'Current locked period should be 7 days'); /// [Result]: Success
+    });
+
 
 });
