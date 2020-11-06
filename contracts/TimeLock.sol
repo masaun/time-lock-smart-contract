@@ -54,7 +54,7 @@ contract TimeLock is TimeLockStorages {
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
-    function redeem(uint timelockId, IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
+    function redeem(uint timelockId, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
 
