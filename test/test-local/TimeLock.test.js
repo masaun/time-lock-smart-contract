@@ -24,11 +24,13 @@ const daiAddr = DAI.address;
 let dai = new web3.eth.Contract(daiABI, daiAddr);
 
 
-
 /***
  * @dev - [Execution]: $ truffle test ./test/test-rinkeby/TimeLock.test.js --network local
  **/
 contract("TimeLock contract", function (accounts) {
+
+    /// Set up wallet
+    let walletAddress1 = accounts[0];
 
 	it('Current locked period should be 7 days', async () => {
         let currentLockedPeriod = await timeLock.methods.lockedPeriod().call();
@@ -63,6 +65,28 @@ contract("TimeLock contract", function (accounts) {
         console.log("=== initialSupply ===", initialSupply);
 
         assert.equal(daiBalance, initialSupply, 'Initial DAI balance should be 100M'); /// [Result]: Success
+    });
+
+    it('Deposited amount should be 100 DAI and new time lock ID should be 1', async () => {
+        const DAI_ADDRESS = daiAddr;
+        const amount = web3.utils.toWei('100', 'ether');
+        let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
+        let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1 });
+
+        const currentTimelockId = await timeLock.methods.currentTimelockId().call();
+
+        const timelockId = 1;
+        const depositor = walletAddress1;
+        let deposit = await timeLock.methods.getDeposit(timelockId, depositor).call();
+        let _depositedAmount = deposit.depositedAmount;
+
+        let balanceOfTimeLockContract = await dai.methods.balanceOf(timeLockAddr).call();
+
+        console.log("=== currentTimelockId ===", currentTimelockId);
+        console.log("=== balanceOfTimeLockContract ===", balanceOfTimeLockContract);
+
+        assert.equal(balanceOfTimeLockContract, _depositedAmount, 'Deposited amount should be 100 DAI'); /// [Result]: Success
+        assert.equal(currentTimelockId, 1, 'New time lock ID should be 1'); /// [Result]: Success
     });
 
 });
