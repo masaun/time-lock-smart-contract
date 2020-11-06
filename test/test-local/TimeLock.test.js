@@ -15,6 +15,14 @@ const timeLockABI = TimeLock.abi;
 const timeLockAddr = TimeLock.address;
 let timeLock = new web3.eth.Contract(timeLockABI, timeLockAddr);
 
+/// RedemptionToken contract instance
+let RedemptionToken = {};
+RedemptionToken = artifacts.require("RedemptionToken");
+
+const REDEMPTION_TOKEN_ABI = RedemptionToken.abi;
+const REDEMPTION_TOKEN = RedemptionToken.address;
+let redemptionToken = new web3.eth.Contract(REDEMPTION_TOKEN_ABI, REDEMPTION_TOKEN);
+
 /// DAI (mock) contract instance
 let DAI = {};
 DAI = artifacts.require("DAIMockToken");
@@ -66,15 +74,20 @@ contract("TimeLock contract", function (accounts) {
     });
 
     it('Deposited amount should be 100 DAI and new time lock ID should be 1', async () => {
+        const TIME_LOCK = timeLockAddr;
         const DAI_ADDRESS = daiAddr;
         const amount = web3.utils.toWei('100', 'ether');
 
+        /// Transfer the Redemption Tokens into contract (from reciever of initial supply) in advance
+        let transferred = await redemptionToken.methods.transfer(timeLockAddr, amount).send({ from: walletAddress1 });
+
+        /// Deposit any ERC20 token
         let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
         let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1, gas:3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
 
+        /// Check whether result is correct or not
         const currentTimelockId = await timeLock.methods.currentTimelockId().call();
-
-        const timelockId = 1;
+        const timelockId = currentTimelockId;
         const depositor = walletAddress1;
         let deposit = await timeLock.methods.getDeposit(timelockId, depositor).call();
         let _depositedAmount = deposit.depositedAmount;

@@ -46,7 +46,7 @@ contract TimeLock is TimeLockStorages {
         deposit.depositedAmount = amount;
 
         /// User recieve a redemption token
-        //_distributeRedemptionToken(msg.sender, amount);
+        _distributeRedemptionToken(msg.sender, amount);
 
         //return newTimelockId;
     }
