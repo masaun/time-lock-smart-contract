@@ -14,10 +14,9 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 contract TimeLock is TimeLockStorages {
     using SafeMath for uint;
 
-    uint currentTimelockId;  /// Time lock ID
-    uint linkPrice;          /// last price of ETH
+    uint public currentTimelockId;  /// Time lock ID
 
-    uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
+    uint public lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
                                                          /// [Key]: timelock ID -> user address (-> timestamp)
 
@@ -54,7 +53,7 @@ contract TimeLock is TimeLockStorages {
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
-    function redeem(uint timelockId, IERC20 _erc20, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
+    function redeem(uint timelockId, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
 
@@ -72,6 +71,14 @@ contract TimeLock is TimeLockStorages {
         /// User recieve redemption tokens (Same amount with user deposited will be distributed)
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
+
+    /***
+     * @notice - Update the locked period (Default locked period is 7 days)
+     *         - Near the future, a access modifier that specify user who can use this method (e.g. "Only Admin") 
+     **/
+    function updateLockedPeriod(uint newLockedPeriod) public returns (bool) {
+        lockedPeriod = newLockedPeriod;
+    }
 
 
     ///------------------------------------------------------------
@@ -97,8 +104,9 @@ contract TimeLock is TimeLockStorages {
     ///------------------------------------------------------------
     /// Getter functions
     ///------------------------------------------------------------
+
     function getDeposit(uint timelockId, address depositor) public view returns (Deposit memory _deposit) {
-        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor (user) address 
+        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor address (user address) 
         return deposit;
     }
     
