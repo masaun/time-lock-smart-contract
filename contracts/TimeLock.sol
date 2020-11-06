@@ -48,7 +48,12 @@ contract TimeLock is TimeLockStorages {
         /// Start to the locked period
         uint newTimelockId = getNextTimelockId();
         currentTimelockId++;
-        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);  /// [Key]: timelock ID -> user address
+        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);     /// [Key]: timelock ID -> user address
+
+        /// Save deposit data
+        Deposit storage deposit = deposits[newTimelockId][msg.sender];  /// [Key]: timelock ID -> user address
+        deposit.depositedERC20 = _erc20;
+        deposit.depositedAmount = amount;
 
         /// User recieve a redemption token
         _distributeRedemptionToken(msg.sender, amount);
@@ -66,11 +71,16 @@ contract TimeLock is TimeLockStorages {
         /// User deposit an amount of the redemption tokens
         //redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
+        /// Get the deposit data of the specified depositor
+        Deposit memory deposit = deposits[timelockId][msg.sender];  /// [Key]: timelock ID -> user address
+        IERC20 _depositedERC20 = deposit.depositedERC20;
+        uint _depositedAmount = deposit.depositedAmount;
+
         /// Burn the redemption tokens
-        redemptionToken.burn(msg.sender, amount);
+        redemptionToken.burn(msg.sender, _depositedAmount);
 
         /// User recieve redemption tokens
-        _distributeERC20Token(_erc20, msg.sender, amount);        
+        _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
 
     /***
@@ -122,6 +132,11 @@ contract TimeLock is TimeLockStorages {
     ///------------------------------------------------------------
     /// Getter functions
     ///------------------------------------------------------------
+    function getDeposit(uint timelockId, address depositor) public view returns (Deposit memory _deposit) {
+        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor (user) address 
+        return deposit;
+    }
+    
 
 
     ///------------------------------------------------------------
