@@ -94,11 +94,18 @@ contract("TimeLock contract", function (accounts) {
 
         let balanceOfTimeLockContract = await dai.methods.balanceOf(timeLockAddr).call();
 
-        console.log("=== currentTimelockId ===", currentTimelockId);
+        console.log("\n=== currentTimelockId ===", currentTimelockId);
         console.log("=== balanceOfTimeLockContract ===", balanceOfTimeLockContract);
 
         assert.equal(balanceOfTimeLockContract, _depositedAmount, 'Deposited amount should be 100 DAI'); /// [Result]: Success
         assert.equal(currentTimelockId, 1, 'New time lock ID should be 1'); /// [Result]: Success
     });
 
+    it('Redeemed amount should be 100 DAI', async () => {
+        const timelockId = 1;        
+        const amount = web3.utils.toWei('100', 'ether');
+
+        /// Redeem the Redemption Tokens with the deposited ERC20 token
+        let redeemed = await timeLock.methods.redeem(timelockId, amount).send({ from: walletAddress1, gas:3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
+    });
 });

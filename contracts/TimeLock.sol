@@ -18,7 +18,7 @@ contract TimeLock is TimeLockStorages {
 
     uint public lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping (address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
-                                                         /// [Key]: timelock ID -> user address (-> timestamp)
+                                                          /// [Key]: timelock ID -> user address (-> timestamp)
 
     RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
 
@@ -54,12 +54,12 @@ contract TimeLock is TimeLockStorages {
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
      **/
-    function redeem(uint timelockId, RedemptionToken _redemptionToken, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
+    function redeem(uint timelockId, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
 
         /// User deposit an amount of the redemption tokens
-        //redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+        redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
         /// Get the deposit data of the specified depositor
         Deposit memory deposit = deposits[timelockId][msg.sender];  /// [Key]: timelock ID -> user address
