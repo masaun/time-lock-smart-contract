@@ -40,7 +40,7 @@ contract("TimeLock contract", function (accounts) {
         let currentLockedPeriodAfter = await timeLock.methods.lockedPeriod().call();
         console.log("=== currentLockedPeriod (After) ===", currentLockedPeriodAfter);
 
-        assert.equal(currentLockedPeriodAfter, fiveSecond, 'Current locked period should be 7 days'); /// [Result]: Success
+        assert.equal(currentLockedPeriodAfter, fiveSecond, 'Current locked period should be changed (from 7 days) to 5 second'); /// [Result]: Success
     });
 
 
