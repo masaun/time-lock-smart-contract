@@ -56,9 +56,7 @@ contract("TimeLock contract", function (accounts) {
     });
 
     it('Initial DAI balance should be 100M', async () => {  /// [Note]: DAI is mock ERC20 token
-        const walletAddress = accounts[0];
-
-        let daiBalance = await dai.methods.balanceOf(walletAddress).call();
+        let daiBalance = await dai.methods.balanceOf(walletAddress1).call();
         const initialSupply = 1e8 * 1e18;
 
         console.log("\n=== daiBalance ===", daiBalance);
@@ -70,6 +68,7 @@ contract("TimeLock contract", function (accounts) {
     it('Deposited amount should be 100 DAI and new time lock ID should be 1', async () => {
         const DAI_ADDRESS = daiAddr;
         const amount = web3.utils.toWei('100', 'ether');
+
         let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
         let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1 });
 

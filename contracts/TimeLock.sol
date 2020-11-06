@@ -26,13 +26,14 @@ contract TimeLock is TimeLockStorages {
         redemptionToken = _redemptionToken;
     }
 
+
     /***
      * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
      **/
     function deposit(IERC20 _erc20, uint amount) public returns (bool) {
         /// User deposit an amount of ERC20 token
         IERC20 erc20 = _erc20;
-        //erc20.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+        erc20.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
         /// Start to the locked period
         uint newTimelockId = getNextTimelockId();
@@ -41,28 +42,14 @@ contract TimeLock is TimeLockStorages {
 
         /// Save deposit data
         Deposit storage deposit = deposits[newTimelockId][msg.sender];  /// [Key]: timelock ID -> user address
-        _deposit(newTimelockId, msg.sender, _erc20, amount);
-        // Deposit storage deposit = deposits[newTimelockId][msg.sender];  /// [Key]: timelock ID -> user address
-        // deposit.depositedERC20 = _erc20;
-        // deposit.depositedAmount = amount;
-
+        deposit.depositedERC20 = _erc20;
+        deposit.depositedAmount = amount;
 
         /// User recieve a redemption token
         //_distributeRedemptionToken(msg.sender, amount);
 
         //return newTimelockId;
     }
-
-
-
-    function _deposit(uint newTimelockId, address sender, IERC20 _erc20, uint amount) public returns (bool) {
-        /// Save deposit data
-        Deposit storage deposit = deposits[newTimelockId][msg.sender];  /// [Key]: timelock ID -> user address
-        //deposit.depositedERC20 = _erc20;
-        deposit.depositedAmount = amount;
-    }
-
-
 
     /***
      * @notice - the method should allow the user to reclaim the asset using by exchanging the redemption token for the original amount of asset
