@@ -7,12 +7,22 @@ require('dotenv').config();
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
 
+/// TimeLock contract instance
 let TimeLock = {};
 TimeLock = artifacts.require("TimeLock");
 
 const timeLockABI = TimeLock.abi;
 const timeLockAddr = TimeLock.address;
 let timeLock = new web3.eth.Contract(timeLockABI, timeLockAddr);
+
+/// DAI (mock) contract instance
+let DAI = {};
+DAI = artifacts.require("DAIMockToken");
+
+const daiABI = DAI.abi;
+const daiAddr = DAI.address;
+let dai = new web3.eth.Contract(daiABI, daiAddr);
+
 
 
 /***
@@ -43,5 +53,16 @@ contract("TimeLock contract", function (accounts) {
         assert.equal(currentLockedPeriodAfter, fiveSecond, 'Current locked period should be changed (from 7 days) to 5 second'); /// [Result]: Success
     });
 
+    it('Initial DAI balance should be 100M', async () => {  /// [Note]: DAI is mock ERC20 token
+        const walletAddress = accounts[0];
+
+        let daiBalance = await dai.methods.balanceOf(walletAddress).call();
+        const initialSupply = 1e8 * 1e18;
+
+        console.log("\n=== daiBalance ===", daiBalance);
+        console.log("=== initialSupply ===", initialSupply);
+
+        assert.equal(daiBalance, initialSupply, 'Initial DAI balance should be 100M'); /// [Result]: Success
+    });
 
 });
