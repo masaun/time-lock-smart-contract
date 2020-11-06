@@ -17,7 +17,7 @@ contract TimeLock is TimeLockStorages {
     uint public currentTimelockId;  /// Time lock ID
 
     uint public lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
-    mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
+    mapping (uint => mapping (address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
                                                          /// [Key]: timelock ID -> user address (-> timestamp)
 
     RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
@@ -26,10 +26,11 @@ contract TimeLock is TimeLockStorages {
         redemptionToken = _redemptionToken;
     }
 
+
     /***
      * @notice - User deposit an amount of ERC20 token and recieve a redemption token.
      **/
-    function deposit(IERC20 _erc20, uint amount) public returns (uint _newTimelockId) {
+    function deposit(IERC20 _erc20, uint amount) public returns (bool) {
         /// User deposit an amount of ERC20 token
         IERC20 erc20 = _erc20;
         erc20.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
@@ -45,9 +46,9 @@ contract TimeLock is TimeLockStorages {
         deposit.depositedAmount = amount;
 
         /// User recieve a redemption token
-        _distributeRedemptionToken(msg.sender, amount);
+        //_distributeRedemptionToken(msg.sender, amount);
 
-        return newTimelockId;
+        //return newTimelockId;
     }
 
     /***
