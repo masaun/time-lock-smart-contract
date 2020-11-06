@@ -72,6 +72,14 @@ contract TimeLock is TimeLockStorages {
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
 
+    /***
+     * @notice - Update the locked period (Default locked period is 7 days)
+     *         - Near the future, a access modifier that specify user who can use this method (e.g. "Only Admin") 
+     **/
+    function updateLockedPeriod(uint newLockedPeriod) public returns (bool) {
+        lockedPeriod = newLockedPeriod;
+    }
+
 
     ///------------------------------------------------------------
     /// Internal functions
