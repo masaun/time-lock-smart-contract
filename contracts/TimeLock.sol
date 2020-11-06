@@ -1,10 +1,11 @@
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "./RedemptionToken.sol";
+import { TimeLockStorages } from "./timelock/commons/TimeLockStorages.sol";
 
 import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
 
+import { RedemptionToken } from "./RedemptionToken.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
@@ -12,7 +13,7 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 /***
  * @notice - This contract that allows a user to send an amount of ERC20 token to a smart contract that takes custody of the asset for a pre-determined amount of time (e.g., 7 days) and issues a redemption token.
  **/
-contract TimeLock {
+contract TimeLock is TimeLockStorages {
     using SafeMath for uint;
 
     uint currentTimelockId;  /// Time lock ID
@@ -20,16 +21,20 @@ contract TimeLock {
 
     uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
-                                                         /// [Key]: timelock ID -> user address               
+                                                         /// [Key]: timelock ID -> user address (-> timestamp)
 
-    RedemptionToken public redemptionToken;
+    RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
 
     IERC20 dai;                                          /// DAI stable coin
     IERC20 link;                                         /// Chainlink coin
     AggregatorV3Interface internal linkPriceFeed;        /// chainlink aggregator
 
-    constructor(RedemptionToken _redemptionToken) public {
+    constructor(RedemptionToken _redemptionToken, IERC20 _dai, IERC20 _link, AggregatorV3Interface _linkPriceFeed) public {
         redemptionToken = _redemptionToken;
+
+        dai = _dai;                      /// DAI
+        link = _link;                    /// LINK
+        linkPriceFeed = _linkPriceFeed;  /// Chainlink PriceFeed (LINK/USD)
     }
 
     /***
@@ -43,7 +48,12 @@ contract TimeLock {
         /// Start to the locked period
         uint newTimelockId = getNextTimelockId();
         currentTimelockId++;
-        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);
+        periods[newTimelockId][msg.sender] = now.add(lockedPeriod);     /// [Key]: timelock ID -> user address
+
+        /// Save deposit data
+        Deposit storage deposit = deposits[newTimelockId][msg.sender];  /// [Key]: timelock ID -> user address
+        deposit.depositedERC20 = _erc20;
+        deposit.depositedAmount = amount;
 
         /// User recieve a redemption token
         _distributeRedemptionToken(msg.sender, amount);
@@ -61,11 +71,16 @@ contract TimeLock {
         /// User deposit an amount of the redemption tokens
         //redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
-        /// Burn the redemption tokens
-        redemptionToken.burn(msg.sender, amount);
+        /// Get the deposit data of the specified depositor
+        Deposit memory deposit = deposits[timelockId][msg.sender];  /// [Key]: timelock ID -> user address
+        IERC20 _depositedERC20 = deposit.depositedERC20;
+        uint _depositedAmount = deposit.depositedAmount;
 
-        /// User recieve redemption tokens
-        _distributeERC20Token(_erc20, msg.sender, amount);        
+        /// Burn the redemption tokens
+        redemptionToken.burn(msg.sender, _depositedAmount);
+
+        /// User recieve redemption tokens (Same amount with user deposited will be distributed)
+        _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
 
     /***
@@ -80,6 +95,7 @@ contract TimeLock {
      * @notice - etch eth price from chainlink
      **/
     function fetchlinkPrice() public view returns (int256) {
+        /// Retrieve a price feed data (of LINK)
         (
             uint80 roundID, 
             int price,
@@ -87,7 +103,7 @@ contract TimeLock {
             uint timeStamp,
             uint80 answeredInRound
         ) = linkPriceFeed.latestRoundData();
-        // If the round is not complete yet, timestamp is 0
+        /// If the round is not complete yet, timestamp is 0
         require(timeStamp > 0, "Round not complete");
         return price;
     }
@@ -116,6 +132,11 @@ contract TimeLock {
     ///------------------------------------------------------------
     /// Getter functions
     ///------------------------------------------------------------
+    function getDeposit(uint timelockId, address depositor) public view returns (Deposit memory _deposit) {
+        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor (user) address 
+        return deposit;
+    }
+    
 
 
     ///------------------------------------------------------------
