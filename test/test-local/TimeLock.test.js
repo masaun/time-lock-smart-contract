@@ -25,7 +25,7 @@ contract("TimeLock contract", function (accounts) {
         const sevenDays = (60 * 60 * 24) * 7;
 
         console.log("=== currentLockedPeriod ===", currentLockedPeriod);
-        console.log("=== sevenDays ===", sevenDays);
+        console.log("=== sevenDays (7 days) ===", sevenDays);
 
         assert.equal(currentLockedPeriod, sevenDays, 'Current locked period should be 7 days');
     });
