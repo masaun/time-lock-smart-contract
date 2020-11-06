@@ -70,7 +70,7 @@ contract("TimeLock contract", function (accounts) {
         const amount = web3.utils.toWei('100', 'ether');
 
         let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
-        let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1 });
+        let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1, gas:3000000 });
 
         const currentTimelockId = await timeLock.methods.currentTimelockId().call();
 
