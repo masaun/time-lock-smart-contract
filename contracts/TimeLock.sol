@@ -3,8 +3,6 @@ pragma experimental ABIEncoderV2;
 
 import { TimeLockStorages } from "./timelock/commons/TimeLockStorages.sol";
 
-import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
-
 import { RedemptionToken } from "./RedemptionToken.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
@@ -25,16 +23,8 @@ contract TimeLock is TimeLockStorages {
 
     RedemptionToken public redemptionToken;              /// [Note]: Exchange rate is 1:1 between this token and USD
 
-    IERC20 dai;                                          /// DAI stable coin
-    IERC20 link;                                         /// Chainlink coin
-    AggregatorV3Interface internal linkPriceFeed;        /// chainlink aggregator
-
-    constructor(RedemptionToken _redemptionToken, IERC20 _dai, IERC20 _link, AggregatorV3Interface _linkPriceFeed) public {
+    constructor(RedemptionToken _redemptionToken) public {
         redemptionToken = _redemptionToken;
-
-        dai = _dai;                      /// DAI
-        link = _link;                    /// LINK
-        linkPriceFeed = _linkPriceFeed;  /// Chainlink PriceFeed (LINK/USD)
     }
 
     /***
@@ -82,31 +72,6 @@ contract TimeLock is TimeLockStorages {
         /// User recieve redemption tokens (Same amount with user deposited will be distributed)
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
     } 
-
-    /***
-     * @notice - Update to the latest price
-     **/
-    function updatePrice() public {
-        /// cast to uint256 * add 10 decimals of precision
-        linkPrice = uint256(fetchlinkPrice()).mul(10**10);
-    }
-
-    /***
-     * @notice - etch eth price from chainlink
-     **/
-    function fetchlinkPrice() public view returns (int256) {
-        /// Retrieve a price feed data (of LINK)
-        (
-            uint80 roundID, 
-            int price,
-            uint startedAt,
-            uint timeStamp,
-            uint80 answeredInRound
-        ) = linkPriceFeed.latestRoundData();
-        /// If the round is not complete yet, timestamp is 0
-        require(timeStamp > 0, "Round not complete");
-        return price;
-    }
 
 
     ///------------------------------------------------------------
