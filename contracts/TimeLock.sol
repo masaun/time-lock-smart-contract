@@ -14,9 +14,9 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 contract TimeLock is TimeLockStorages {
     using SafeMath for uint;
 
-    uint currentTimelockId;  /// Time lock ID
+    uint public currentTimelockId;  /// Time lock ID
 
-    uint lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
+    uint public lockedPeriod = 7 days;                          /// [Note]: Default locked period is 7 days.
     mapping (uint => mapping(address => uint)) periods;  /// [Note]: Save a timestamp of the period. 
                                                          /// [Key]: timelock ID -> user address (-> timestamp)
 
@@ -96,8 +96,9 @@ contract TimeLock is TimeLockStorages {
     ///------------------------------------------------------------
     /// Getter functions
     ///------------------------------------------------------------
+
     function getDeposit(uint timelockId, address depositor) public view returns (Deposit memory _deposit) {
-        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor (user) address 
+        Deposit memory deposit = deposits[timelockId][depositor];  /// [Key]: timelock ID -> depositor address (user address) 
         return deposit;
     }
     
