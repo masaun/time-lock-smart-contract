@@ -11,9 +11,9 @@ const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'
 let TimeLock = {};
 TimeLock = artifacts.require("TimeLock");
 
-const timeLockABI = TimeLock.abi;
-const timeLockAddr = TimeLock.address;
-let timeLock = new web3.eth.Contract(timeLockABI, timeLockAddr);
+const TIME_LOCK_ABI = TimeLock.abi;
+const TIME_LOCK = TimeLock.address;
+let timeLock = new web3.eth.Contract(TIME_LOCK_ABI, TIME_LOCK);
 
 /// RedemptionToken contract instance
 let RedemptionToken = {};
@@ -27,9 +27,9 @@ let redemptionToken = new web3.eth.Contract(REDEMPTION_TOKEN_ABI, REDEMPTION_TOK
 let DAI = {};
 DAI = artifacts.require("DAIMockToken");
 
-const daiABI = DAI.abi;
-const daiAddr = DAI.address;
-let dai = new web3.eth.Contract(daiABI, daiAddr);
+const DAI_ABI = DAI.abi;
+const DAI_ADDRESS = DAI.address;
+let dai = new web3.eth.Contract(DAI_ABI, DAI_ADDRESS);
 
 
 /***
@@ -56,7 +56,7 @@ contract("TimeLock contract", function (accounts) {
 
         const second = 0;    /// 0 second
         //const second = 1;  /// 1 second
-        let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(second).send({ from: accounts[0] });
+        let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(second).send({ from: walletAddress1 });
 
         let currentLockedPeriodAfter = await timeLock.methods.lockedPeriod().call();
         console.log("=== currentLockedPeriod (After) ===", currentLockedPeriodAfter);
@@ -75,15 +75,13 @@ contract("TimeLock contract", function (accounts) {
     });
 
     it('Deposited amount should be 100 DAI and new time lock ID should be 1', async () => {
-        const TIME_LOCK = timeLockAddr;
-        const DAI_ADDRESS = daiAddr;
         const amount = web3.utils.toWei('100', 'ether');
 
         /// Transfer the Redemption Tokens into contract (from reciever of initial supply) in advance
-        let transferred = await redemptionToken.methods.transfer(timeLockAddr, amount).send({ from: walletAddress1 });
+        let transferred = await redemptionToken.methods.transfer(TIME_LOCK, amount).send({ from: walletAddress1 });
 
         /// Deposit any ERC20 token
-        let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
+        let approved = await dai.methods.approve(TIME_LOCK, amount).send({ from: walletAddress1 });
         let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1, gas: 3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
 
         /// Check whether result is correct or not
@@ -93,7 +91,7 @@ contract("TimeLock contract", function (accounts) {
         let deposit = await timeLock.methods.getDeposit(timelockId, depositor).call();
         let _depositedAmount = deposit.depositedAmount;
 
-        let balanceOfTimeLockContract = await dai.methods.balanceOf(timeLockAddr).call();
+        let balanceOfTimeLockContract = await dai.methods.balanceOf(TIME_LOCK).call();
 
         console.log("\n=== currentTimelockId ===", currentTimelockId);
         console.log("=== balanceOfTimeLockContract ===", balanceOfTimeLockContract);
@@ -107,13 +105,13 @@ contract("TimeLock contract", function (accounts) {
         const amount = web3.utils.toWei('100', 'ether');
 
         /// Approve
-        let approved = await redemptionToken.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
+        let approved = await redemptionToken.methods.approve(TIME_LOCK, amount).send({ from: walletAddress1 });
 
         /// Redeem the Redemption Tokens with the deposited ERC20 token
         let redeemed = await timeLock.methods.redeem(timelockId, amount).send({ from: walletAddress1, gas: 3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
 
         /// Check
-        let balanceOfTimeLockContract = await dai.methods.balanceOf(timeLockAddr).call();
+        let balanceOfTimeLockContract = await dai.methods.balanceOf(TIME_LOCK).call();
         let balanceOfWalletAddress1 = await dai.methods.balanceOf(walletAddress1).call();
 
         console.log("\n=== balanceOfTimeLockContract ===", balanceOfTimeLockContract);
