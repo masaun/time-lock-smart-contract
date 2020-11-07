@@ -56,7 +56,7 @@ contract TimeLock is TimeLockStorages {
      **/
     function redeem(uint timelockId, uint amount) public returns (bool) {  /// [Note]: Redeem is same mean with "withdraw"
         /// Check whether the locked period has been passed or not
-        require (periods[timelockId][msg.sender] < now, "This deposit has not been passed the time lock period");
+        require (periods[timelockId][msg.sender] <= now, "This deposit has not been passed the time lock period");
 
         /// User deposit an amount of the redemption tokens
         redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
