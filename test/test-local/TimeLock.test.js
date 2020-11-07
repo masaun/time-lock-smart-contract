@@ -106,8 +106,21 @@ contract("TimeLock contract", function (accounts) {
         const timelockId = 1;        
         const amount = web3.utils.toWei('100', 'ether');
 
+        /// Approve
+        let approved = await redemptionToken.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
+
         /// Redeem the Redemption Tokens with the deposited ERC20 token
         let redeemed = await timeLock.methods.redeem(timelockId, amount).send({ from: walletAddress1, gas: 3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
+
+        /// Check
+        let balanceOfTimeLockContract = await dai.methods.balanceOf(timeLockAddr).call();
+        let balanceOfWalletAddress1 = await dai.methods.balanceOf(walletAddress1).call();
+
+        console.log("\n=== balanceOfTimeLockContract ===", balanceOfTimeLockContract);
+        console.log("=== balanceOfWalletAddress1 ===", balanceOfWalletAddress1);
+
+        assert.equal(balanceOfTimeLockContract, 0, 'After it redeemed, balance of TimeLock contract become 0 DAI'); 
+        assert.equal(amount, 100 * 1e18, 'After it redeemed, 100 DAI is transferred into depositor wallet');
     });
 
 });
