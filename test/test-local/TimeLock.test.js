@@ -54,8 +54,9 @@ contract("TimeLock contract", function (accounts) {
         let currentLockedPeriodBefore = await timeLock.methods.lockedPeriod().call();
         console.log("\n=== currentLockedPeriod (Before) ===", currentLockedPeriodBefore);
 
-        const second = 1;  /// 1 second
-        let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(fiveSecond).send({ from: accounts[0] });
+        const second = 0;    /// 0 second
+        //const second = 1;  /// 1 second
+        let changedLockedPeriod = await timeLock.methods.updateLockedPeriod(second).send({ from: accounts[0] });
 
         let currentLockedPeriodAfter = await timeLock.methods.lockedPeriod().call();
         console.log("=== currentLockedPeriod (After) ===", currentLockedPeriodAfter);
@@ -83,7 +84,7 @@ contract("TimeLock contract", function (accounts) {
 
         /// Deposit any ERC20 token
         let approved = await dai.methods.approve(timeLockAddr, amount).send({ from: walletAddress1 });
-        let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1, gas:3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
+        let deposited = await timeLock.methods.deposit(DAI_ADDRESS, amount).send({ from: walletAddress1, gas: 3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
 
         /// Check whether result is correct or not
         const currentTimelockId = await timeLock.methods.currentTimelockId().call();
@@ -106,6 +107,7 @@ contract("TimeLock contract", function (accounts) {
         const amount = web3.utils.toWei('100', 'ether');
 
         /// Redeem the Redemption Tokens with the deposited ERC20 token
-        let redeemed = await timeLock.methods.redeem(timelockId, amount).send({ from: walletAddress1, gas:3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
+        let redeemed = await timeLock.methods.redeem(timelockId, amount).send({ from: walletAddress1, gas: 3000000 });  /// [Note]: { gas: 3000000 } is important to avoid an error of "out of gas"
     });
+
 });
