@@ -58,16 +58,19 @@ contract TimeLock is TimeLockStorages {
         /// Check whether the locked period has been passed or not
         require (periods[timelockId][msg.sender] <= now, "This deposit has not been passed the time lock period");
 
-        /// User deposit an amount of the redemption tokens
-        redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
-
         /// Get the deposit data of the specified depositor
         Deposit memory deposit = deposits[timelockId][msg.sender];  /// [Key]: timelock ID -> user address
         IERC20 _depositedERC20 = deposit.depositedERC20;
         uint _depositedAmount = deposit.depositedAmount;
 
+        /// Check whether "Requested (approved) amount" and "_depositedAmount" are same or not
+        require (amount == _depositedAmount, "Requested (approved) amount and deposited amount are different");
+
+        /// User deposit an amount of the redemption tokens
+        redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
+
         /// Burn the redemption tokens
-        redemptionToken.burn(msg.sender, _depositedAmount);
+        redemptionToken.burn(address(this), _depositedAmount);
 
         /// User recieve redemption tokens (Same amount with user deposited will be distributed)
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
