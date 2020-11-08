@@ -67,7 +67,7 @@ contract TimeLock is TimeLockStorages {
         uint _depositedAmount = deposit.depositedAmount;
 
         /// Burn the redemption tokens
-        redemptionToken.burn(msg.sender, _depositedAmount);
+        redemptionToken.burn(address(this), _depositedAmount);
 
         /// User recieve redemption tokens (Same amount with user deposited will be distributed)
         _distributeERC20Token(_depositedERC20, msg.sender, _depositedAmount);        
