@@ -63,6 +63,9 @@ contract TimeLock is TimeLockStorages {
         IERC20 _depositedERC20 = deposit.depositedERC20;
         uint _depositedAmount = deposit.depositedAmount;
 
+        /// Check whether "Requested (approved) amount" and "_depositedAmount" are same or not
+        require (amount == _depositedAmount, "Requested (approved) amount and deposited amount are different");
+
         /// User deposit an amount of the redemption tokens
         redemptionToken.transferFrom(msg.sender, address(this), amount);  /// [Note]: This deposit amount should be approved by an user before the deposit method is executed.
 
