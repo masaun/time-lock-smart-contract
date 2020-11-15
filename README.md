@@ -12,6 +12,16 @@
 
 ***
 
+## Tech stack
+- Solidity v0.6.12
+- Truffle v5.1.52
+- web3.js v1.2.1
+- Node.js v11.15.0
+
+&nbsp;
+
+***
+
 ## Setup  
 ### ① Install modules  
 ```
